@@ -1,0 +1,67 @@
+{
+  "models": [
+    {
+      "provider": "OpenAI",
+      "model": "gpt-4o-transcribe",
+      "can_transcribe": true,
+      "multimodal": false,
+      "description": "OpenAI's GPT-4o model optimized for audio transcription"
+    },
+    {
+      "provider": "OpenAI",
+      "model": "gpt-4o",
+      "can_transcribe": false,
+      "multimodal": true,
+      "description": "OpenAI's GPT-4o multimodal model for text responses"
+    },
+    {
+      "provider": "OpenAI",
+      "model": "gpt-4o-mini",
+      "can_transcribe": false,
+      "multimodal": true,
+      "description": "OpenAI's gpt-4o-mini model for text responses"
+    },
+    {
+      "provider": "Google",
+      "model": "gemini-2.5-pro-exp-03-25",
+      "can_transcribe": true,
+      "multimodal": true,
+      "description": "Google's Gemini 2.5 Pro experimental model (direct API access)"
+    },
+    {
+      "provider": "OpenRouter",
+      "model": "google/gemini-2.5-pro-exp-03-25:free",
+      "can_transcribe": false,
+      "multimodal": true,
+      "description": "Google's Gemini 2.5 Pro experimental model for text responses"
+    },
+    {
+      "provider": "OpenRouter",
+      "model": "deepseek/deepseek-chat-v3-0324:free",
+      "can_transcribe": false,
+      "multimodal": false,
+      "description": "DeepSeek V3, a 685B-parameter, mixture-of-experts model, is the latest iteration of the flagship chat model family from the DeepSeek team."
+    },
+    {
+      "provider": "OpenRouter",
+      "model": "openai/gpt-4o-mini-search-preview",
+      "can_transcribe": false,
+      "multimodal": false,
+      "description": "GPT-4o mini Search Preview is a specialized model for web search in Chat Completions. It is trained to understand and execute web search queries."
+    },
+    {
+      "provider": "OpenRouter",
+      "model": "google/gemini-2.0-flash-001",
+      "can_transcribe": false,
+      "multimodal": false,
+      "description": "Google's Gemini 2.0"
+    },
+    {
+      "provider": "OpenRouter",
+      "model": "perplexity/sonar-pro",
+      "can_transcribe": false,
+      "multimodal": false,
+      "description": "Perplexity's sonar-pro"
+    }
+  ]
+}
