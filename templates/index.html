@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Robert Speaks Chat</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎤</text></svg>">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Flag Icons CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.11.3/css/flag-icons.min.css">
+  <style>
+    .spinner {
+      display: none;
+      width: 24px;
+      height: 24px;
+      margin: 0 auto;
+      border: 3px solid rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      border-top: 3px solid #3498db;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .language-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .flag-icon {
+      width: 1.5em;
+      height: 1em;
+      margin-right: 5px;
+    }
+    
+    .selected-language {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    
+    .chat-container {
+      height: calc(100vh - 200px);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      padding: 1rem;
+      background-color: #f8f9fa;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .message {
+      max-width: 80%;
+      margin-bottom: 1rem;
+      padding: 0.75rem 1rem;
+      border-radius: 1rem;
+      position: relative;
+    }
+    
+    .user-message {
+      align-self: flex-end;
+      background-color: #3b82f6;
+      color: white;
+      border-bottom-right-radius: 0.25rem;
+    }
+    
+    .ai-message {
+      align-self: flex-start;
+      background-color: #e5e7eb;
+      color: #1f2937;
+      border-bottom-left-radius: 0.25rem;
+    }
+    
+    .tool-message {
+      align-self: flex-start;
+      margin-left: 20px;
+      max-width: 80%;
+    }
+    
+    .tool-output {
+      background-color: #f5f5f5;
+      border-left: 4px solid #3498db;
+      padding: 10px;
+      font-family: monospace;
+      border-radius: 0 8px 8px 0;
+      margin-top: 5px;
+      white-space: pre-wrap;
+    }
+    
+    .input-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      position: relative;
+    }
+    
+    .input-field {
+      flex-grow: 1;
+      padding: 0.75rem 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+    }
+    
+    .speak-button {
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      padding: 0.75rem;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    .speak-button:hover {
+      background-color: #2563eb;
+    }
+    
+    .speak-button:active {
+      background-color: #1d4ed8;
+    }
+    
+    .speak-button.recording {
+      background-color: #ef4444;
+    }
+    
+    .language-selector {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 p-4">
+  <div class="max-w-4xl mx-auto">
+    <div class="flex justify-between items-center mb-4">
+      <button id="newChatButton" class="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-md flex items-center">
+        <i class="fas fa-plus mr-2"></i> New Chat
+      </button>
+      <h1 class="text-2xl font-bold text-center">Robert Speaks Chat</h1>
+      <button id="settingsButton" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-md flex items-center">
+        <i class="fas fa-cog mr-2"></i> Settings
+      </button>
+    </div>
+    
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+      <div class="bg-white rounded-lg p-6 w-full max-w-md">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-bold">Settings</h2>
+          <button id="closeSettingsButton" class="text-gray-500 hover:text-gray-700">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="transcriptionModel">
+            Audio Model
+          </label>
+          <select id="transcriptionModel" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            <!-- Options will be populated by JavaScript -->
+          </select>
+        </div>
+        
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="responseModel">
+            Text Model
+          </label>
+          <select id="responseModel" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            <!-- Options will be populated by JavaScript -->
+          </select>
+        </div>
+        
+        <div class="flex justify-end">
+          <button id="saveSettingsButton" class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md">
+            Save Settings
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="language-selector">
+      <div class="selected-language">
+        <span id="selectedLanguageDisplay">
+          <span class="flag-icon flag-icon-se"></span> Swedish
+        </span>
+      </div>
+      
+      <select id="language" class="px-2 py-1 border border-gray-300 rounded-md shadow-sm text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+        <option value="sv" selected>
+          <span class="flag-icon flag-icon-se"></span> Swedish
+        </option>
+        <option value="en">
+          <span class="flag-icon flag-icon-gb"></span> English
+        </option>
+        <option value="fi">
+          <span class="flag-icon flag-icon-fi"></span> Finnish
+        </option>
+        <option value="no">
+          <span class="flag-icon flag-icon-no"></span> Norwegian
+        </option>
+        <option value="da">
+          <span class="flag-icon flag-icon-dk"></span> Danish
+        </option>
+        <option value="">Other/Auto Detect</option>
+        <option value="es">
+          <span class="flag-icon flag-icon-es"></span> Spanish
+        </option>
+        <option value="fr">
+          <span class="flag-icon flag-icon-fr"></span> French
+        </option>
+        <option value="de">
+          <span class="flag-icon flag-icon-de"></span> German
+        </option>
+        <option value="it">
+          <span class="flag-icon flag-icon-it"></span> Italian
+        </option>
+        <option value="ja">
+          <span class="flag-icon flag-icon-jp"></span> Japanese
+        </option>
+        <option value="ko">
+          <span class="flag-icon flag-icon-kr"></span> Korean
+        </option>
+        <option value="zh">
+          <span class="flag-icon flag-icon-cn"></span> Chinese
+        </option>
+        <option value="ru">
+          <span class="flag-icon flag-icon-ru"></span> Russian
+        </option>
+      </select>
+    </div>
+    
+    <div id="chatContainer" class="chat-container">
+      <!-- Messages will be added here dynamically -->
+      <div class="message ai-message">
+        Hello! How can I help you today? You can type a message or click the microphone button to speak.
+      </div>
+    </div>
+    
+    <div class="input-container">
+      <input
+        type="text"
+        id="messageInput"
+        class="input-field"
+        placeholder="Type your message here..."
+        autocomplete="off"
+      >
+      <button id="speakButton" class="speak-button">
+        <i class="fas fa-microphone"></i>
+      </button>
+      <div id="spinner" class="spinner"></div>
+    </div>
+    
+    <p id="status" class="text-sm text-gray-500 mt-2 text-center">Type a message or click the microphone to speak</p>
+  </div>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>
